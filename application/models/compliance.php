@@ -3,8 +3,21 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 class Compliance extends CI_Model
 {
-	public function get_compliance_by_area(array $area_ids)
+	public function get_all_area()
 	{
+		$query = "SELECT * FROM `store_area`";
+		$data = $this->db->query($query);
+		return $data->result_array();
+	}
+	public function get_compliance_by_area(array $area_ids, $date_from, $date_to)
+	{
+		if ($date_from && $date_to) {
+			$date_from = date('Y-m-d', strtotime($date_from));
+			$date_to = date('Y-m-d', strtotime($date_to));
+			$date_query = "AND rp.tanggal BETWEEN '$date_from' AND '$date_to'";
+		} else {
+			$date_query = "";
+		}
 		$area_ids_string = implode(',', $area_ids);
 		$area_selected_CASE = '';
 		foreach ($area_ids as $area_id) {
@@ -31,7 +44,7 @@ class Compliance extends CI_Model
     JOIN
         store s ON rp.store_id = s.store_id
     WHERE
-        s.area_id IN (" . $area_ids_string . ")
+        s.area_id IN (" . $area_ids_string . ")  $date_query
     GROUP BY
         pb.brand_name, s.area_id
 )
@@ -45,8 +58,15 @@ GROUP BY BrandName;
 		return $data->result_array();
 	}
 
-	public function get_compliance_by_area_q2(array $area_ids)
+	public function get_compliance_by_area_q2(array $area_ids, $date_from, $date_to)
 	{
+		if ($date_from && $date_to) {
+			$date_from = date('Y-m-d', strtotime($date_from));
+			$date_to = date('Y-m-d', strtotime($date_to));
+			$date_query = "AND rp.tanggal BETWEEN '$date_from' AND '$date_to'";
+		} else {
+			$date_query = "";
+		}
 		$area_ids_string = implode(',', $area_ids);
 		$area_selected_CASE = '';
 		foreach ($area_ids as $area_id) {
@@ -68,7 +88,7 @@ GROUP BY BrandName;
 		JOIN product p ON rp.product_id = p.product_id
 		JOIN product_brand pb ON p.brand_id = pb.brand_id
 		JOIN store s ON rp.store_id = s.store_id
-		WHERE s.area_id IN ($area_ids_string)
+		WHERE s.area_id IN ($area_ids_string) $date_query
 		GROUP BY pb.brand_name
 	";
 		$data = $this->db->query($query);
