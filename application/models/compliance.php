@@ -9,7 +9,7 @@ class Compliance extends CI_Model
 		$data = $this->db->query($query);
 		return $data->result_array();
 	}
-	public function get_compliance_by_area(array $area_ids, $date_from, $date_to)
+	public function get_compliance_by_area(array $area_ids, $date_from = null, $date_to = null)
 	{
 		if ($date_from && $date_to) {
 			$date_from = date('Y-m-d', strtotime($date_from));
@@ -58,7 +58,7 @@ GROUP BY BrandName;
 		return $data->result_array();
 	}
 
-	public function get_compliance_by_area_q2(array $area_ids, $date_from, $date_to)
+	public function get_compliance_by_area_q2(array $area_ids, $date_from = null, $date_to = null)
 	{
 		if ($date_from && $date_to) {
 			$date_from = date('Y-m-d', strtotime($date_from));
@@ -75,7 +75,7 @@ GROUP BY BrandName;
 			CAST(
 				SUM(CASE WHEN s.area_id = $area_id THEN rp.compliance ELSE 0 END) 
 				/ SUM(CASE WHEN s.area_id = $area_id THEN 1 ELSE 0 END)*100
-				AS SIGNED) AS Area$area_id
+				AS SIGNED) AS '$area_id'
 			";
 			if ($area_id != end($area_ids)) {
 				$area_selected_CASE .= ',';
